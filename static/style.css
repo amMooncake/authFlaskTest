@@ -123,6 +123,25 @@ a:focus-visible{
 	border-radius:4px;
 }
 
-/* small / muted link variant */
 a.small{font-size:13px;color:var(--muted)}
+
+.radio-inline{
+	display:flex;
+	gap:12px;
+	align-items:center;
+	margin-top:8px;
+	flex-wrap:wrap;
+}
+.radio-inline .radio-item{
+	display:inline-flex;
+	align-items:center;
+	gap:8px;
+	margin:0;
+	cursor:pointer;
+	font-size:14px;
+	color:var(--text);
+}
+.radio-inline .radio-item input[type="radio"]{
+	margin:0;
+}
 
