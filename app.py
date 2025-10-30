@@ -37,7 +37,6 @@ class Student(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     name = db.Column(db.String(100), nullable=True)
     contact_number = db.Column(db.String(20), nullable=True)
-    # roll_number is optional in the form; make the DB column nullable
     roll_number = db.Column(db.String(11), nullable=True)
     user = db.relationship('User', back_populates='student')
 
@@ -135,5 +134,5 @@ def register():
 
 if __name__ == '__main__':
     # with app.app_context():
-    #     db.create_all()
+    #     db.create_all() 
     app.run(port=8000, debug=True)
