@@ -1,0 +1,83 @@
+LOGIN:
+
+// Login form fields
+//login fields are created and validated by WTForms
+CLASS LoginForm:
+    FIELDS:
+        email, password, submit
+
+//if user is already logged in
+// User loader for login manager using Flask_login
+DEFINE FUNCTION load_user(user_id):
+    //using SQLAlchemy to query user by ID
+    RETURN User WHERE id = user_id
+
+ROUTE 'login':
+    // form created by class LoginForm
+    CREATE form = LoginForm()
+
+    IF form is submitted AND valid:
+        FIND user BY email
+        IF user exists AND bcrypt.check_password_hash(password matches):
+            CALL login_user(user)
+            // login successful
+            REDIRECT to 'dashboard' 
+    //login failed
+    RETURN ROUTE('login')
+
+ROUTE '/logout':
+    CALL logout_user() // session handle by Flask-Login
+    REDIRECT to 'login'
+
+
+
+
+REGISTER:
+
+// Registration form fields
+//login fields are created and validated by WTForms
+CLASS RegisterForm:
+    FIELDS:
+        email, password, role, roll_number, name, contact_number, submit
+
+    VALIDATION FUNCTION validate_email(email):
+        IF email already exists in database:
+            RAISE ValidationError "That email already exists"
+
+ROUTE 'register' (methods = ['GET', 'POST']):
+    // form created by class RegisterForm
+    CREATE form = RegisterForm()
+    IF form is submitted AND valid:
+        // check extra students fields:
+        IF role == 'student':
+            IF name OR contact_number is missing:
+                DISPLAY "Student registration requires name and contact number"
+                RETURN ROUTE('register.html')
+
+         // send verification email instead of immediate login
+        DISPLAY "Check your email to confirm your account."
+        CALL send_confirmation_email(new_user)
+        
+        IF user.confirmed:
+            DISPLAY "You have confirmed your account. Please login."
+            REDIRECT to 'login'
+
+        // hash password usinb Bcrypt
+        CREATE hashed_password = bcrypt.generate_password_hash(form.password)
+        CREATE new_user = User(email, hashed_password, role)
+        //using SQLAlchemy to add user to database
+        ADD new_user TO database
+
+        IF role == 'student':
+            CREATE new Student(user_id, name, contact_number, roll_number)
+            ADD student TO database
+        ELSE IF role == 'teacher':
+            CREATE new Teacher(user_id = new_user.id)
+            ADD teacher TO database
+
+        DISPLAY "Account created! You can now log in."
+        REDIRECT to 'login'
+       
+    RETURN ROUTE('register.html')
+
+    
